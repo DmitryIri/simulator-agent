@@ -12,6 +12,16 @@ with open("scenarios.json", "r", encoding="utf-8") as f:
 st.set_page_config(page_title="MP-Agent", page_icon="💊")
 st.title("🧪 Тренажёр общения: Медпредставитель и Врач")
 
+# --- Выбор роли ---
+if "role" not in st.session_state:
+    st.session_state.role = None
+
+if st.session_state.role is None:
+    st.session_state.role = st.radio("Выберите вашу роль:", ["Медпредставитель", "Врач", "Тренер"])
+    st.stop()
+
+st.info(f"Вы вошли как **{st.session_state.role}**")
+
 # --- Выбор сценария и стиля врача ---
 scenario_titles = [s["title"] for s in scenarios]
 col1, col2 = st.columns(2)
@@ -33,6 +43,7 @@ if "step" not in st.session_state:
     st.session_state.log = {
         "scenario_id": scenario["id"],
         "style": style_choice,
+        "role": st.session_state.role,
         "dialog": [],
         "timestamp": datetime.now().isoformat()
     }
@@ -74,8 +85,9 @@ else:
         mime="application/json"
     )
 
-    with st.expander("📊 Обратная связь от тренера"):
-        st.markdown("""
+    if st.session_state.role == "Тренер":
+        with st.expander("📊 Обратная связь от тренера"):
+            st.markdown("""
 **1. Аргументация:** 4/5  
 Хорошо раскрыты преимущества, но не были указаны клинические данные.
 
@@ -89,4 +101,4 @@ else:
 Добавьте финальный вопрос типа: _Могу ли я предложить Проспекту для таких пациентов?_
 
 **⭐ Итог:** 4.3 / 5
-        """)
+            """)
