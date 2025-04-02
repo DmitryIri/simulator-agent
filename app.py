@@ -1,6 +1,8 @@
+
 import streamlit as st
 import json
 import random
+from datetime import datetime
 
 # --- Загружаем сценарии из файла ---
 with open("scenarios.json", "r", encoding="utf-8") as f:
@@ -28,6 +30,12 @@ else:
 if "step" not in st.session_state:
     st.session_state.step = 0
     st.session_state.history = []
+    st.session_state.log = {
+        "scenario_id": scenario["id"],
+        "style": style_choice,
+        "dialog": [],
+        "timestamp": datetime.now().isoformat()
+    }
 
 # --- Выводим чат-историю ---
 st.subheader("💬 Диалог")
@@ -44,16 +52,28 @@ if st.session_state.step < len(scenario["steps"]):
     with st.chat_message("Врач"):
         st.markdown(doctor_text)
     st.session_state.history.append({"role": "Врач", "text": doctor_text})
+    st.session_state.log["dialog"].append({"role": "Врач", "text": doctor_text})
 
     user_input = st.chat_input("Ваш ответ:")
     if user_input:
         st.session_state.history.append({"role": "МП", "text": user_input})
+        st.session_state.log["dialog"].append({"role": "МП", "text": user_input})
         st.session_state.step += 1
         st.experimental_rerun()
 
-# --- Обратная связь от тренера ---
+# --- Обратная связь от тренера + лог сессии ---
 else:
     st.success("Диалог завершён ✅")
+
+    # Кнопка для скачивания JSON-лога
+    log_json = json.dumps(st.session_state.log, ensure_ascii=False, indent=2)
+    st.download_button(
+        label="📥 Скачать диалог в формате JSON",
+        data=log_json,
+        file_name="session_log.json",
+        mime="application/json"
+    )
+
     with st.expander("📊 Обратная связь от тренера"):
         st.markdown("""
 **1. Аргументация:** 4/5  
