@@ -17,7 +17,10 @@ if "role" not in st.session_state:
     st.session_state.role = None
 
 if st.session_state.role is None:
-    st.session_state.role = st.radio("Выберите вашу роль:", ["Медпредставитель", "Врач", "Тренер"])
+    role = st.radio("Выберите вашу роль:", ["Медпредставитель", "Врач", "Тренер"])
+    if st.button("Продолжить"):
+        st.session_state.role = role
+        st.experimental_rerun()
     st.stop()
 
 st.info(f"Вы вошли как **{st.session_state.role}**")
