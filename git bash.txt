@@ -1,0 +1,4 @@
+
+cd /f/2025/0_AI/01_ChatGPT/01_MP_Agent-02/simulator-agent
+
+streamlit run app_structured_pppp.py
