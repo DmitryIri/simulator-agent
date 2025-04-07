@@ -48,15 +48,10 @@ if role == "Медпредставитель":
         scenario = find_scenario(scenarios, selected_objection, selected_style)
 
         if scenario:
-            if (
-                "step" not in st.session_state
-                or st.session_state.get("last_selection") != (selected_objection, selected_style, user_name)
-            ):
+            if "step" not in st.session_state or st.session_state.get("last_selection") != (selected_objection, selected_style, user_name):
                 st.session_state.step = 0
                 st.session_state.last_selection = (selected_objection, selected_style, user_name)
                 st.session_state.session_log = []
-                st.session_state.answer_submitted = False
-                st.session_state.go_next = False
 
             steps = scenario["steps"]
             current_step = st.session_state.step
@@ -66,45 +61,23 @@ if role == "Медпредставитель":
                 st.subheader(f"👨‍⚕️ Реплика врача (шаг {current_step + 1}/{len(steps)}):")
                 st.markdown(f"> {step_data['doctor']}")
 
-                if not st.session_state.answer_submitted:
-                    with st.form(key=f"form_step_{current_step}"):
-                        selected_text = st.radio(
-                            "💬 Выберите ответ:",
-                            [a["text"] for a in step_data["answers"]],
-                            key=f"radio_{current_step}"
-                        )
-                        submitted = st.form_submit_button("Ответить")
+                with st.form(key=f"form_step_{current_step}"):
+                    selected_text = st.radio("💬 Выберите ответ:", [a["text"] for a in step_data["answers"]], key=f"radio_{current_step}")
+                    submitted = st.form_submit_button("Ответить")
 
-                    if submitted:
-                        selected = next((a for a in step_data["answers"] if a["text"] == selected_text), None)
-                        if selected:
-                            st.session_state.answer_submitted = True
-                            st.session_state.last_feedback = {
-                                "text": selected["text"],
-                                "type": selected["type"],
-                                "feedback": selected["feedback"],
-                                "doctor": step_data["doctor"]
-                            }
-                            st.session_state.session_log.append({
-                                "doctor": step_data["doctor"],
-                                "answer": selected["text"],
-                                "type": selected["type"]
-                            })
-                            st.rerun()
+                if submitted:
+                    selected = next((a for a in step_data["answers"] if a["text"] == selected_text), None)
+                    if selected:
+                        st.markdown(f"**Тип ответа:** {selected['type']}")
+                        st.info(selected["feedback"])
+                        st.session_state.session_log.append({
+                            "doctor": step_data["doctor"],
+                            "answer": selected["text"],
+                            "type": selected["type"]
+                        })
+                        if st.button("➡️ Продолжить к следующему шагу"):
+                            st.session_state.step += 1
 
-                elif st.session_state.answer_submitted and not st.session_state.go_next:
-                    feedback = st.session_state.last_feedback
-                    st.markdown(f"**Тип ответа:** {feedback['type']}")
-                    st.info(feedback["feedback"])
-                    if st.button("Продолжить"):
-                        st.session_state.go_next = True
-                        st.rerun()
-
-                elif st.session_state.go_next:
-                    st.session_state.step += 1
-                    st.session_state.answer_submitted = False
-                    st.session_state.go_next = False
-                    st.rerun()
             else:
                 st.success("🎉 Вы завершили сценарий из 3 шагов!")
 
@@ -121,8 +94,6 @@ if role == "Медпредставитель":
                 if st.button("🔁 Пройти заново"):
                     st.session_state.step = 0
                     st.session_state.session_log = []
-                    st.session_state.answer_submitted = False
-                    st.session_state.go_next = False
         else:
             st.warning("Сценарий не найден.")
 

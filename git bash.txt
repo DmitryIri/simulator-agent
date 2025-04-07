@@ -3,7 +3,9 @@
 cd /f/2025/0_AI/01_ChatGPT/01_MP_Agent-02/simulator-agent
 
 Код для запуска Проекта
-streamlit run app_structured_pppp.py
+streamlit run app_medrep_trainer.py
+
+app_medrep_trainer_combined_fixed.py
 
 Алгоритм резервного копирования на GitHub
 cd /f/2025/0_AI/01_ChatGPT/01_MP_Agent-02/simulator-agent
